@@ -1,0 +1,848 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This template deploys Lex Bots, Lambda for Lex Fulfilment, DataSource (Redshift) The Redshift servers are all deployed to the private subnet. Private subnets must  be available in at least two availability zones. Lambda will running the VPC private subnets to connect to redshift. **WARNING** This template creates AWS  resources. You will be billed for the AWS resources used if you create a stack  from this template. (qs-1nrlpbhna)",
+    "Metadata": {
+        "AWS::CloudFormation::Interface": {
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": "Network Configuration"
+                    },
+                    "Parameters": [
+                        "VPCID",
+                        "PrivateSubnetId1",
+                        "PrivateSubnetId2"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "Redshift Configuration"
+                    },
+                    "Parameters": [
+                        "RedshiftUsername",
+                        "RedshiftPassword",
+                        "RedshiftDbName",
+                        "RedshiftPort",
+                        "RedshiftNodeType",
+                        "RedshiftNumberOfNodes"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "Lex Bot Configuration"
+                    },
+                    "Parameters": [
+                        "LexResourcesPrefix",
+                        "ParentOrigin"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "Quick Start Configuration"
+                    },
+                    "Parameters": [
+                        "QSS3BucketName",
+                        "QSS3KeyPrefix"
+                    ]
+                }
+            ]
+        }
+    },
+    "Parameters": {
+        "QSS3BucketName": {
+            "Type": "String",
+            "Description": "S3 bucket name for the Quick Start assets. Quick Start bucket name can include numbers, lowercase letters, uppercase letters, periods (.), and hyphens (-). It cannot start or end with a hyphen (-) or period (.).",
+            "Default": "ag-bot-demo-ire",
+            "AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
+            "ConstraintDescription": "Quick Start bucket name can include numbers, lowercase letters, uppercase letters, periods (.), and hyphens (-). It cannot start or end with a hyphen (-) or period (.)"
+        },
+        "QSS3KeyPrefix": {
+            "Type": "String",
+            "Description": "The S3 key name prefix used to simulate a folder for your copy of Quick Start assets, if you decide to customize or extend the Quick Start for your own use. This prefix can include numbers, lowercase letters, uppercase letters, hyphens, and forward slashes",
+            "Default": "conversational-bot",
+            "AllowedPattern": "^[0-9a-zA-Z-/]*$",
+            "ConstraintDescription": "Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).  Prefix cannot start with a slash but must end with a slash unless it is the empty string."
+        },
+        "VPCID": {
+            "Type": "AWS::EC2::VPC::Id",
+            "Description": "ID of an existing VPC where the AWS resources will be deployed through the Cloudformation templates"
+        },
+        "PrivateSubnetId1": {
+            "Type": "AWS::EC2::Subnet::Id",
+            "Description": "ID of Private Subnet 1 in the existing VPC"
+        },
+        "PrivateSubnetId2": {
+            "Type": "AWS::EC2::Subnet::Id",
+            "Description": "ID of Private Subnet 2 in the existing VPC"
+        },
+        "RedshiftUsername": {
+            "Type": "String",
+            "Description": "RedShift Username",
+            "Default": "tadmin"
+        },
+        "RedshiftPassword": {
+            "Type": "String",
+            "Description": "RedShift Password Can only contain alphanumeric characters or the following special characters !^*-_+",
+            "NoEcho": true,
+            "MinLength": 8,
+            "MaxLength": 28,
+            "AllowedPattern": "[a-zA-Z0-9!^*\\-_+]*"
+        },
+        "RedshiftDbName": {
+            "Type": "String",
+            "Description": "RedShift Database name"
+        },
+        "RedshiftPort": {
+            "Type": "String",
+            "Description": "RedShift Port",
+            "Default": "5439"
+        },
+        "RedshiftNodeType": {
+            "Type": "String",
+            "Description": "The node type to for the redshift cluster",
+            "Default": "dc2.large",
+            "AllowedValues": [
+                "dc2.large",
+                "dc2.8xlarge",
+                "ds2.large",
+                "ds2.8xlarge"
+            ],
+            "ConstraintDescription": "must be a valid RedShift node type."
+        },
+        "RedshiftNumberOfNodes": {
+            "Type": "Number",
+            "Description": "The number of nodes in the redshift cluster",
+            "Default": "1"
+        },
+        "LexResourcesPrefix": {
+            "Type": "String",
+            "Description": "Prefix for Lex Bot, Intent and Slots",
+            "Default": "lex_cft_prefix",
+            "AllowedPattern": "(^[a-zA-Z]$|^[a-zA-Z][a-zA-Z_]+$)"
+        },
+        "ParentOrigin": {
+            "Type": "String",
+            "Description": "Browser origin (e.g. http://lexbot.example.com:8080) of an existing site that is allowed to send/receive data and events from the web ui in an iframe setup. This is an optional parameter. If left empty, an S3 bucket will be created to host a sample parent site embedding the webapp as an iframe.\n",
+            "AllowedPattern": "(^$|^https?://[\\w\\.-]+(:\\d+)?$)",
+            "ConstraintDescription": "Empty or valid browser origin"
+        }
+    },
+    "Conditions": {
+        "NeedsParentOrigin": {
+            "Fn::Equals": [
+                {
+                    "Ref": "ParentOrigin"
+                },
+                ""
+            ]
+        }
+    },
+    "Resources": {
+        "RedshiftStack": {
+            "Type": "AWS::CloudFormation::Stack",
+            "Properties": {
+                "TemplateURL": {
+                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}/templates/datasource-redshift.template"
+                },
+                "Parameters": {
+                    "VPCID": {
+                        "Ref": "VPCID"
+                    },
+                    "RedshiftSubnetA": {
+                        "Ref": "PrivateSubnetId1"
+                    },
+                    "RedshiftSubnetB": {
+                        "Ref": "PrivateSubnetId2"
+                    },
+                    "RedshiftUsername": {
+                        "Ref": "RedshiftUsername"
+                    },
+                    "RedshiftPassword": {
+                        "Ref": "RedshiftPassword"
+                    },
+                    "RedshiftDbName": {
+                        "Ref": "RedshiftDbName"
+                    },
+                    "RedshiftPort": {
+                        "Ref": "RedshiftPort"
+                    },
+                    "RedshiftNodeType": {
+                        "Ref": "RedshiftNodeType"
+                    },
+                    "RedshiftNumberOfNodes": {
+                        "Ref": "RedshiftNumberOfNodes"
+                    },
+                    "LambdaSecurityGroupId": {
+                        "Fn::GetAtt": [
+                            "LexFulfillmentLambdaSecurityGroup",
+                            "GroupId"
+                        ]
+                    }
+                }
+            }
+        },
+        "S3WebBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "AccessControl": "PublicRead",
+                "WebsiteConfiguration": {
+                    "IndexDocument": "index.html"
+                },
+                "VersioningConfiguration": {
+                    "Status": "Enabled"
+                },
+                "CorsConfiguration": {
+                    "Fn::If": [
+                        "NeedsParentOrigin",
+                        {
+                            "Ref": "AWS::NoValue"
+                        },
+                        {
+                            "CorsRules": [
+                                {
+                                    "AllowedMethods": [
+                                        "GET"
+                                    ],
+                                    "AllowedOrigins": [
+                                        {
+                                            "Ref": "ParentOrigin"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "CognitoUserPool": {
+            "DependsOn": "S3WebBucket",
+            "Type": "AWS::Cognito::UserPool",
+            "Properties": {
+                "UserPoolName": {
+                    "Fn::Sub": "lex_chatbot_userpool_${AWS::StackName}"
+                }
+            }
+        },
+        "CognitoUserPoolClient": {
+            "Type": "AWS::Cognito::UserPoolClient",
+            "DependsOn": "CognitoUserPool",
+            "Properties": {
+                "UserPoolId": {
+                    "Ref": "CognitoUserPool"
+                },
+                "GenerateSecret": false
+            }
+        },
+        "CognitoIdentityPool": {
+            "Type": "AWS::Cognito::IdentityPool",
+            "DependsOn": "CognitoUserPoolClient",
+            "Properties": {
+                "AllowUnauthenticatedIdentities": true,
+                "CognitoIdentityProviders": [
+                    {
+                        "ClientId": {
+                            "Ref": "CognitoUserPoolClient"
+                        },
+                        "ProviderName": {
+                            "Fn::GetAtt": [
+                                "CognitoUserPool",
+                                "ProviderName"
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "AuthRole": {
+            "Type": "AWS::IAM::Role",
+            "DependsOn": "CognitoIdentityPool",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Federated": [
+                                    "cognito-identity.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRoleWithWebIdentity",
+                                "sts:AssumeRole"
+                            ],
+                            "Condition": {
+                                "StringEquals": {
+                                    "cognito-identity.amazonaws.com:aud": {
+                                        "Ref": "CognitoIdentityPool"
+                                    }
+                                },
+                                "ForAnyValue:StringLike": {
+                                    "cognito-identity.amazonaws.com:amr": "authenticated"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "AuthPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "DependsOn": "AuthRole",
+            "Properties": {
+                "PolicyName": {
+                    "Fn::Sub": "cognito_auth_policy_${AWS::Region}_${AWS::StackName}"
+                },
+                "Roles": [
+                    {
+                        "Ref": "AuthRole"
+                    }
+                ],
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "mobileanalytics:PutEvents",
+                                "cognito-sync:*",
+                                "cognito-identity:*"
+                            ],
+                            "Resource": [
+                                {
+                                    "Fn::Sub": "arn:aws:cognito-sync:${AWS::Region}:${AWS::AccountId}:identitypool/${CognitoIdentityPool}/*"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "UnAuthRole": {
+            "Type": "AWS::IAM::Role",
+            "DependsOn": "CognitoIdentityPool",
+            "Properties": {
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/AmazonPollyReadOnlyAccess",
+                    "arn:aws:iam::aws:policy/AmazonLexRunBotsOnly"
+                ],
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Federated": [
+                                    "cognito-identity.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRoleWithWebIdentity",
+                                "sts:AssumeRole"
+                            ],
+                            "Condition": {
+                                "StringEquals": {
+                                    "cognito-identity.amazonaws.com:aud": {
+                                        "Ref": "CognitoIdentityPool"
+                                    }
+                                },
+                                "ForAnyValue:StringLike": {
+                                    "cognito-identity.amazonaws.com:amr": "unauthenticated"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "UnAuthPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "DependsOn": "UnAuthRole",
+            "Properties": {
+                "PolicyName": {
+                    "Fn::Sub": "cognito_auth_policy_${AWS::Region}_${AWS::StackName}"
+                },
+                "Roles": [
+                    {
+                        "Ref": "UnAuthRole"
+                    }
+                ],
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "mobileanalytics:PutEvents",
+                                "cognito-sync:*"
+                            ],
+                            "Resource": [
+                                {
+                                    "Fn::Sub": "arn:aws:cognito-sync:${AWS::Region}:${AWS::AccountId}:identitypool/${CognitoIdentityPool}/*"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "CognitoIdentityPoolRoleAttachment": {
+            "Type": "AWS::Cognito::IdentityPoolRoleAttachment",
+            "DependsOn": [
+                "AuthPolicy",
+                "UnAuthPolicy"
+            ],
+            "Properties": {
+                "IdentityPoolId": {
+                    "Ref": "CognitoIdentityPool"
+                },
+                "Roles": {
+                    "authenticated": {
+                        "Fn::GetAtt": [
+                            "AuthRole",
+                            "Arn"
+                        ]
+                    },
+                    "unauthenticated": {
+                        "Fn::GetAtt": [
+                            "UnAuthRole",
+                            "Arn"
+                        ]
+                    }
+                }
+            }
+        },
+        "LexFulfillmentLambdaRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+                ],
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "lambda.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "LexFulfillmentLambdaPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "DependsOn": "LexFulfillmentLambdaRole",
+            "Properties": {
+                "PolicyName": {
+                    "Fn::Sub": "lex_fulfillment_policy_lambda_${AWS::Region}_${AWS::StackName}"
+                },
+                "Roles": [
+                    {
+                        "Ref": "LexFulfillmentLambdaRole"
+                    }
+                ],
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:CreateLogGroup",
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            "Resource": "*"
+                        }
+                    ]
+                }
+            }
+        },
+        "LexFulfillmentLambdaSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "DependsOn": "LexFulfillmentLambdaPolicy",
+            "Properties": {
+                "GroupDescription": "Allow Redshift Access",
+                "VpcId": {
+                    "Ref": "VPCID"
+                }
+            }
+        },
+        "LexFulfillmentLambda": {
+            "Type": "AWS::Lambda::Function",
+            "DependsOn": "LexFulfillmentLambdaSecurityGroup",
+            "Properties": {
+                "Handler": "AWSQuickStart.lambda_handler",
+                "Role": {
+                    "Fn::GetAtt": [
+                        "LexFulfillmentLambdaRole",
+                        "Arn"
+                    ]
+                },
+                "Code": {
+                    "S3Bucket": {
+                        "Ref": "QSS3BucketName"
+                    },
+                    "S3Key": {
+                        "Fn::Sub": "${QSS3KeyPrefix}/assets/lambda/aws_quickstart_fulfillment_lambda.zip"
+                    }
+                },
+                "Runtime": "python3.6",
+                "Timeout": 60,
+                "Environment": {
+                    "Variables": {
+                        "DBNAME": {
+                            "Ref": "RedshiftDbName"
+                        },
+                        "HOST": {
+                            "Fn::GetAtt": [
+                                "RedshiftStack",
+                                "Outputs.RedshiftEndpoint"
+                            ]
+                        },
+                        "USERNAME": {
+                            "Ref": "RedshiftUsername"
+                        },
+                        "PASSWORD": {
+                            "Ref": "RedshiftPassword"
+                        },
+                        "PORT": {
+                            "Ref": "RedshiftPort"
+                        },
+                        "LOG_LEVEL": "INFO",
+                        "INTENTPREFIX": {
+                            "Ref": "LexResourcesPrefix"
+                        }
+                    }
+                },
+                "VpcConfig": {
+                    "SecurityGroupIds": [
+                        {
+                            "Fn::GetAtt": [
+                                "LexFulfillmentLambdaSecurityGroup",
+                                "GroupId"
+                            ]
+                        }
+                    ],
+                    "SubnetIds": [
+                        {
+                            "Ref": "PrivateSubnetId1"
+                        },
+                        {
+                            "Ref": "PrivateSubnetId2"
+                        }
+                    ]
+                }
+            }
+        },
+        "LexLambdaInvokePermission": {
+            "Type": "AWS::Lambda::Permission",
+            "DependsOn": "LexFulfillmentLambda",
+            "Properties": {
+                "FunctionName": {
+                    "Fn::GetAtt": [
+                        "LexFulfillmentLambda",
+                        "Arn"
+                    ]
+                },
+                "Action": "lambda:invokeFunction",
+                "Principal": "lex.amazonaws.com",
+                "SourceArn": {
+                    "Fn::Sub": "arn:aws:lex:${AWS::Region}:${AWS::AccountId}:intent:${LexResourcesPrefix}*:*"
+                }
+            }
+        },
+        "LexCustomLambdaRole": {
+            "Type": "AWS::IAM::Role",
+            "DependsOn": "LexLambdaInvokePermission",
+            "Properties": {
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+                ],
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "lambda.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "LexCustomLambdaPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "DependsOn": "LexCustomLambdaRole",
+            "Properties": {
+                "PolicyName": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            {
+                                "Ref": "LexCustomLambdaRole"
+                            },
+                            "_policy"
+                        ]
+                    ]
+                },
+                "Roles": [
+                    {
+                        "Ref": "LexCustomLambdaRole"
+                    }
+                ],
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "LexPermissions",
+                            "Effect": "Allow",
+                            "Action": [
+                                "lex:*"
+                            ],
+                            "Resource": "*"
+                        },
+                        {
+                            "Sid": "S3Permissions",
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:GetObject",
+                                "s3:PutObject",
+                                "s3:ListBucket",
+                                "s3:DeleteObject",
+                                "s3:DeleteObjectVersion",
+                                "s3:PutObjectAcl"
+                            ],
+                            "Resource": [
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "arn:aws:s3:::",
+                                            {
+                                                "Ref": "QSS3BucketName"
+                                            }
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "arn:aws:s3:::",
+                                            {
+                                                "Ref": "QSS3BucketName"
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "arn:aws:s3:::",
+                                            {
+                                                "Ref": "S3WebBucket"
+                                            }
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "arn:aws:s3:::",
+                                            {
+                                                "Ref": "S3WebBucket"
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "Sid": "CloudWatchLogsPermissions",
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:CreateLogGroup",
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            "Resource": "*"
+                        }
+                    ]
+                }
+            }
+        },
+        "CustomLambda": {
+            "Type": "AWS::Lambda::Function",
+            "DependsOn": "LexCustomLambdaPolicy",
+            "Properties": {
+                "Handler": "quick_start_custom_lambda.lambda_handler",
+                "Role": {
+                    "Fn::GetAtt": [
+                        "LexCustomLambdaRole",
+                        "Arn"
+                    ]
+                },
+                "Code": {
+                    "S3Bucket": {
+                        "Ref": "QSS3BucketName"
+                    },
+                    "S3Key": {
+                        "Fn::Sub": "${QSS3KeyPrefix}/assets/lambda/aws_quickstart_custom_lambda.zip"
+                    }
+                },
+                "Runtime": "python3.6",
+                "Timeout": 300
+            }
+        },
+        "LexBot": {
+            "Type": "Custom::LexBot",
+            "DependsOn": "CustomLambda",
+            "Properties": {
+                "ServiceToken": {
+                    "Fn::GetAtt": [
+                        "CustomLambda",
+                        "Arn"
+                    ]
+                },
+                "BucketName": {
+                    "Ref": "QSS3BucketName"
+                },
+                "LexJsonKey": {
+                    "Fn::Sub": "${QSS3KeyPrefix}/assets/lex/lex_aws_quickstart.json"
+                },
+                "LexResourcesPrefix": {
+                    "Ref": "LexResourcesPrefix"
+                },
+                "FulfillmentLambdaArn": {
+                    "Fn::GetAtt": [
+                        "LexFulfillmentLambda",
+                        "Arn"
+                    ]
+                }
+            }
+        },
+        "RedshiftDataLoaderCustomLambda": {
+            "Type": "AWS::Lambda::Function",
+            "DependsOn": [
+                "S3WebBucket",
+                "LexBot",
+                "RedshiftStack"
+            ],
+            "Properties": {
+                "Handler": "DataLoading.lambda_handler",
+                "Role": {
+                    "Fn::GetAtt": [
+                        "LexCustomLambdaRole",
+                        "Arn"
+                    ]
+                },
+                "Code": {
+                    "S3Bucket": {
+                        "Ref": "QSS3BucketName"
+                    },
+                    "S3Key": {
+                        "Fn::Sub": "${QSS3KeyPrefix}/assets/lambda/aws_quickstart_dataloading_lambda.zip"
+                    }
+                },
+                "Runtime": "python3.6",
+                "Timeout": 600,
+                "Environment": {
+                    "Variables": {
+                        "LOG_LEVEL": "INFO"
+                    }
+                },
+                "VpcConfig": {
+                    "SecurityGroupIds": [
+                        {
+                            "Fn::GetAtt": [
+                                "LexFulfillmentLambdaSecurityGroup",
+                                "GroupId"
+                            ]
+                        }
+                    ],
+                    "SubnetIds": [
+                        {
+                            "Ref": "PrivateSubnetId1"
+                        },
+                        {
+                            "Ref": "PrivateSubnetId2"
+                        }
+                    ]
+                }
+            }
+        },
+        "RedshiftDataLoader": {
+            "Type": "Custom::RedshiftDataLoader",
+            "DependsOn": "RedshiftDataLoaderCustomLambda",
+            "Properties": {
+                "ServiceToken": {
+                    "Fn::GetAtt": [
+                        "RedshiftDataLoaderCustomLambda",
+                        "Arn"
+                    ]
+                },
+                "DatabaseName": {
+                    "Ref": "RedshiftDbName"
+                },
+                "RedshiftCluster": {
+                    "Fn::GetAtt": [
+                        "RedshiftStack",
+                        "Outputs.RedshiftEndpoint"
+                    ]
+                },
+                "DatabasePort": {
+                    "Ref": "RedshiftPort"
+                },
+                "MasterUsername": {
+                    "Ref": "RedshiftUsername"
+                },
+                "MasterUserPassword": {
+                    "Ref": "RedshiftPassword"
+                },
+                "BucketName": {
+                    "Ref": "QSS3BucketName"
+                },
+                "Path": {
+                    "Fn::Sub": "${QSS3KeyPrefix}/assets/data"
+                },
+                "SourceBucket": {
+                    "Ref": "QSS3BucketName"
+                },
+                "SourceKey": {
+                    "Fn::Sub": "${QSS3KeyPrefix}/assets/web"
+                },
+                "DestinationBucket": {
+                    "Ref": "S3WebBucket"
+                },
+                "DestinationKey": "",
+                "BotName": {
+                    "Fn::GetAtt": [
+                        "LexBot",
+                        "BotName"
+                    ]
+                },
+                "CognitoPoolId": {
+                    "Ref": "CognitoIdentityPool"
+                }
+            }
+        }
+    }
+}
