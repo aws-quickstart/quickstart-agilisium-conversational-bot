@@ -310,7 +310,11 @@ $(document).ready(function() {
 	// present at the root directory. It includes bot name,
 	// bot alias, region, and cognito pool id.
 	$.get('config.json', function(data) {
-		data = JSON.parse(data);
+		// Don't remove the following line, sometime the
+		// data object is not automatically parsed.
+		if(Object.prototype.toString.call(data) === "[object String]") {
+			data = JSON.parse(data);
+		}
 		botAlias = data.botAlias;
 		botName = data.botName;
 
@@ -324,6 +328,12 @@ $(document).ready(function() {
 		// Based on the above credentials create a lex run time
 		// object and assign it to the global variable.
 		lexRunTime = new AWS.LexRuntime();
+	});
+
+	// To handle the get started button click event.
+	// When clicked it takes you to the Agilisium website.
+	$(".get-started-button").on("click", function() {
+		window.location = "https://www.agilisium.com/solutions/bi-conversational-bot/"
 	});
 });
 
