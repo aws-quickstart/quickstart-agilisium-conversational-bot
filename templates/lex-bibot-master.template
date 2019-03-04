@@ -248,5 +248,14 @@
                 }
             }
         }
+    },
+    "Rules": {
+        "LexRegionCheck": {
+            "Assertions" : [
+                { "Assert" : {"Fn::Contains":[["us-east-1", "us-west-2", "eu-west-1"], {"Ref": "AWS::Region"}]},
+                  "AssertDescription" : "Lex is supported only in us-east-1, us-west-2 and eu-west-1 regions only"
+                }
+            ]
+        }
     }
 }
