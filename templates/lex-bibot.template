@@ -286,9 +286,9 @@
                     "Ref": "QSS3KeyPrefix"
                 },
                 "Objects": [
-                    "/assets/lambda/aws_quickstart_fulfillment_lambda.zip",
-                    "/assets/lambda/aws_quickstart_custom_lambda.zip",
-                    "/assets/lambda/aws_quickstart_dataloading_lambda.zip"
+                    "/functions/packages/bot_fulfillment/bot_fulfillment.zip",
+                    "/functions/packages/lex_custom_lambda/lex_custom_lambda.zip",
+                    "/functions/packages/bootstrap_redshift/bootstrap_redshift.zip"
                 ]
             }
         },
@@ -593,7 +593,7 @@
                 "CopyZips"
                 ],
             "Properties": {
-                "Handler": "AWSQuickStart.lambda_handler",
+                "Handler": "bot_fulfillment.lambda_handler",
                 "Role": {
                     "Fn::GetAtt": [
                         "LexFulfillmentLambdaRole",
@@ -605,7 +605,7 @@
                         "Ref": "LambdaZipsBucket"
                     },
                     "S3Key": {
-                        "Fn::Sub": "${QSS3KeyPrefix}/assets/lambda/aws_quickstart_fulfillment_lambda.zip"
+                        "Fn::Sub": "${QSS3KeyPrefix}/functions/packages/bot_fulfillment/bot_fulfillment.zip"
                     }
                 },
                 "Runtime": "python3.6",
@@ -833,7 +833,7 @@
                 "CopyZips"
                 ],
             "Properties": {
-                "Handler": "quick_start_custom_lambda.lambda_handler",
+                "Handler": "lex_custom_lambda.lambda_handler",
                 "Role": {
                     "Fn::GetAtt": [
                         "LexCustomLambdaRole",
@@ -845,7 +845,7 @@
                         "Ref": "LambdaZipsBucket"
                     },
                     "S3Key": {
-                        "Fn::Sub": "${QSS3KeyPrefix}/assets/lambda/aws_quickstart_custom_lambda.zip"
+                        "Fn::Sub": "${QSS3KeyPrefix}/functions/packages/lex_custom_lambda/lex_custom_lambda.zip"
                     }
                 },
                 "Runtime": "python3.6",
@@ -876,6 +876,19 @@
                         "LexFulfillmentLambda",
                         "Arn"
                     ]
+                },
+                "SourceBucket": {
+                    "Ref": "QSS3BucketName"
+                },
+                "SourceKey": {
+                    "Fn::Sub": "${QSS3KeyPrefix}/assets/web"
+                },
+                "DestinationBucket": {
+                    "Ref": "S3WebBucket"
+                },
+                "DestinationKey": "",
+                "CognitoPoolId": {
+                    "Ref": "CognitoIdentityPool"
                 }
             }
         },
@@ -888,7 +901,7 @@
                 "CopyZips"
             ],
             "Properties": {
-                "Handler": "DataLoading.lambda_handler",
+                "Handler": "bootstrap_redshift.lambda_handler",
                 "Role": {
                     "Fn::GetAtt": [
                         "LexCustomLambdaRole",
@@ -900,7 +913,7 @@
                         "Ref": "LambdaZipsBucket"
                     },
                     "S3Key": {
-                        "Fn::Sub": "${QSS3KeyPrefix}/assets/lambda/aws_quickstart_dataloading_lambda.zip"
+                        "Fn::Sub": "${QSS3KeyPrefix}/functions/packages/bootstrap_redshift/bootstrap_redshift.zip"
                     }
                 },
                 "Runtime": "python3.6",
@@ -963,25 +976,102 @@
                 },
                 "Path": {
                     "Fn::Sub": "${QSS3KeyPrefix}/assets/data"
-                },
-                "SourceBucket": {
-                    "Ref": "QSS3BucketName"
-                },
-                "SourceKey": {
-                    "Fn::Sub": "${QSS3KeyPrefix}/assets/web"
-                },
-                "DestinationBucket": {
-                    "Ref": "S3WebBucket"
-                },
-                "DestinationKey": "",
-                "BotName": {
-                    "Fn::GetAtt": [
-                        "LexBot",
-                        "BotName"
-                    ]
-                },
-                "CognitoPoolId": {
-                    "Ref": "CognitoIdentityPool"
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "S3WebsiteURL": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "S3WebBucket",
+                    "WebsiteURL"
+                ]
+            },
+            "Description" : "S3 Static Website URL",
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}:S3WebsiteURL"
+                }
+            }
+        },
+        "LexBotName": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "LexBot",
+                    "BotName"
+                ]
+            },
+            "Description" : "Lex Bot Name",
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}:LexBotName"
+                }
+            }
+        },
+        "RedshiftSecurityGroupID": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "RedshiftStack",
+                    "Outputs.RedshiftSecurityGroupID"
+                ]
+            },
+            "Description" : "Redshift Security Group ID",
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}:RedshiftSecurityGroupID"
+                }
+            }
+        },
+        "RedshiftClusterId": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "RedshiftStack",
+                    "Outputs.RedshiftClusterId"
+                ]
+            },
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}:RedshiftClusterId"
+                }
+            }
+        },
+        "RedshiftEndpoint": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "RedshiftStack",
+                    "Outputs.RedshiftEndpoint"
+                ]
+            },
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}:RedshiftEndpoint"
+                }
+            }
+        },
+        "RedshiftPort": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "RedshiftStack",
+                    "Outputs.RedshiftPort"
+                ]
+            }, 
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}:RedshiftPort"
+                }
+            }
+        },
+        "RedshiftJdbcUrl": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "RedshiftStack",
+                    "Outputs.RedshiftJdbcUrl"
+                ]
+            },
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}:RedshiftJdbcUrl"
                 }
             }
         }

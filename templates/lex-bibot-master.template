@@ -257,5 +257,101 @@
                 }
             }
         }
+    },
+    "Outputs": {
+        "S3WebsiteURL": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "LexBotStack",
+                    "Outputs.S3WebsiteURL"
+                ]
+            },
+            "Description" : "S3 Static Website URL",
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}:S3WebsiteURL"
+                }
+            }
+        },
+        "LexBotName": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "LexBotStack",
+                    "Outputs.LexBotName"
+                ]
+            },
+            "Description" : "Lex Bot Name",
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}:LexBotName"
+                }
+            }
+        },
+        "RedshiftSecurityGroupID": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "LexBotStack",
+                    "Outputs.RedshiftSecurityGroupID"
+                ]
+            },
+            "Description" : "Redshift Security Group ID",
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}:RedshiftSecurityGroupID"
+                }
+            }
+        },
+        "RedshiftClusterId": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "LexBotStack",
+                    "Outputs.RedshiftClusterId"
+                ]
+            },
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}:RedshiftClusterId"
+                }
+            }
+        },
+        "RedshiftEndpoint": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "LexBotStack",
+                    "Outputs.RedshiftEndpoint"
+                ]
+            },
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}:RedshiftEndpoint"
+                }
+            }
+        },
+        "RedshiftPort": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "LexBotStack",
+                    "Outputs.RedshiftPort"
+                ]
+            },
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}:RedshiftPort"
+                }
+            }
+        },
+        "RedshiftJdbcUrl": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "LexBotStack",
+                    "Outputs.RedshiftJdbcUrl"
+                ]
+            },
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}:RedshiftJdbcUrl"
+                }
+            }
+        }
     }
 }
