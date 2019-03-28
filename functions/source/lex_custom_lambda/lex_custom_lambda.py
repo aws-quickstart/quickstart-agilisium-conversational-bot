@@ -125,8 +125,14 @@ def copy_webui_code(event):
         logger.info('started processing s3 data event: '+str(event))
         driver = create_clidriver()
         copy_command = 's3 cp s3://{source_path}    s3://{destination_path} --recursive --acl public-read'
-        source_path = event['ResourceProperties']['SourceBucket'] + '/' + event['ResourceProperties']['SourceKey']
-        destination_path = event['ResourceProperties']['DestinationBucket'] + '/' + event['ResourceProperties']['DestinationKey']
+        source_bucket = event['ResourceProperties']['SourceBucket']
+        destination_bucket = event['ResourceProperties']['DestinationBucket']
+        if not source_bucket.endswith('/'):
+            source_bucket = source_bucket + '/'
+        if not destination_bucket.endswith('/'):
+            destination_bucket = destination_bucket + '/'
+        source_path = source_bucket + event['ResourceProperties']['SourceKey']
+        destination_path = destination_bucket + event['ResourceProperties']['DestinationKey']
         formatted_copy_command = copy_command.format(source_path=source_path, destination_path=destination_path)
         logger.info(formatted_copy_command)
         driver.main(formatted_copy_command.split())

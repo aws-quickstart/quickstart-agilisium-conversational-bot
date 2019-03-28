@@ -44,6 +44,16 @@
                         "QSS3BucketName",
                         "QSS3KeyPrefix"
                     ]
+                },
+                {
+                    "Label": {
+                        "default": "Optional Configuration"
+                    },
+                    "Parameters": [
+                        "LoadCustomData",
+                        "CustomDataBucketName",
+                        "CustomDataKeyPrefix"
+                    ]
                 }
             ]
         }
@@ -125,6 +135,30 @@
             "Description": "Browser origin (e.g. http://lexbot.example.com:8080) of an existing site that is allowed to send/receive data and events from the web ui in an iframe setup. This is an optional parameter. If left empty, an S3 bucket will be created to host a sample parent site embedding the webapp as an iframe.\n",
             "AllowedPattern": "(^$|^https?://[\\w\\.-]+(:\\d+)?$)",
             "ConstraintDescription": "Empty or valid browser origin"
+        },
+        "LoadCustomData": {
+            "Type": "String",
+            "Description": "Choose true to load custom data from user S3 location instead of default sample data",
+            "Default": "false",
+            "AllowedValues": [
+                "true",
+                "false"
+            ],
+            "ConstraintDescription": "Choose true to provide custom S3 location for loading data"
+        },
+        "CustomDataBucketName": { 
+            "Type": "String",
+            "Description": "S3 bucket name for the custom data assets to be loaded to redshift. Bucket name can include numbers, lowercase letters, uppercase letters, periods (.), and hyphens (-). It cannot start or end with a hyphen (-) or period (.).",
+            "Default": "",
+            "AllowedPattern": "(^$|^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$)",
+            "ConstraintDescription": "Bucket name can include numbers, lowercase letters, uppercase letters, periods (.), and hyphens (-). It cannot start or end with a hyphen (-) or period (.)"
+        },
+        "CustomDataKeyPrefix": {
+            "Type": "String",
+            "Description": "The S3 key name prefix where custom data assets are stored to be loaded to redshift. This prefix can include numbers, lowercase letters, uppercase letters, hyphens, and forward slashes",
+            "Default": "",
+            "AllowedPattern": "(^$|^[0-9a-zA-Z-/]*$)",
+            "ConstraintDescription": "Key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).  Prefix cannot start with a slash but must end with a slash unless it is the empty string."
         }
     },
     "Conditions": {
@@ -135,6 +169,14 @@
                 },
                 ""
             ]
+        },
+        "UseCustomData": {
+            "Fn::Equals": [
+                {
+                    "Ref": "LoadCustomData"
+                },
+                "true"
+            ]
         }
     },
     "Rules": {
@@ -142,6 +184,14 @@
             "Assertions" : [
                 { "Assert" : {"Fn::Contains":[["us-east-1", "us-west-2", "eu-west-1"], {"Ref": "AWS::Region"}]},
                   "AssertDescription" : "Lex is currently supported in us-east-1, us-west-2 and eu-west-1 regions only"
+                }
+            ]
+        },
+        "CustomDataCheck": {
+            "RuleCondition" : {"Fn::Equals":[{"Ref":"LoadCustomData"}, "true"]},
+            "Assertions" : [
+                { "Assert" : {"Fn::Not":[{"Fn::Equals" : [{"Ref" : "CustomDataBucketName"}, ""]}]},
+                  "AssertDescription" : "Please provide custom data bucket name, prefix is optional"
                 }
             ]
         }
@@ -741,6 +791,37 @@
                             ],
                             "Resource": [
                                 {
+                                    "Fn::If": [
+                                        "UseCustomData",
+	                                    {"Fn::Join": [
+	                                        "",
+	                                        [
+	                                            "arn:aws:s3:::",
+	                                            {
+	                                                "Ref": "CustomDataBucketName"
+	                                            }
+	                                        ]
+	                                    ]},
+                                        {"Ref" : "AWS::NoValue"}
+                                        ]
+                                },
+                                {
+                                    "Fn::If": [
+                                        "UseCustomData",
+	                                    {"Fn::Join": [
+	                                        "",
+	                                        [
+	                                            "arn:aws:s3:::",
+	                                            {
+	                                                "Ref": "CustomDataBucketName"
+	                                            },
+                                                "/*"
+	                                        ]
+	                                    ]},
+                                        {"Ref" : "AWS::NoValue"}
+                                        ]
+                                },
+                                {
                                     "Fn::Join": [
                                         "",
                                         [
@@ -972,10 +1053,18 @@
                     "Ref": "RedshiftPassword"
                 },
                 "BucketName": {
-                    "Ref": "QSS3BucketName"
+                    "Fn::If": [
+                        "UseCustomData",
+                        {"Ref": "CustomDataBucketName"},
+                        {"Ref": "QSS3BucketName"}
+                    ]
                 },
                 "Path": {
-                    "Fn::Sub": "${QSS3KeyPrefix}/assets/data"
+                    "Fn::If": [
+                        "UseCustomData",
+                        {"Ref": "CustomDataKeyPrefix"},
+                        {"Fn::Sub": "${QSS3KeyPrefix}/assets/data"}
+                    ]
                 }
             }
         }

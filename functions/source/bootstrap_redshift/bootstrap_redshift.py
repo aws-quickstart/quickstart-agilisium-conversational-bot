@@ -38,7 +38,7 @@ def lambda_handler(event, context):
             is_processed = True
             if not valid_properties(event, context,
                                     ['DatabaseName', 'DatabasePort', 'MasterUsername', 'MasterUserPassword',
-                                     'RedshiftCluster']):
+                                     'RedshiftCluster', 'BucketName']):
                 raise RuntimeError("Missing one of the custom lambda properties..")
             is_processed = insert_records(event)
             if not is_processed:
@@ -166,12 +166,16 @@ def insert_records(event):
         if is_processed:
             is_processed = create_tables(connection)
             bucket_name = event['ResourceProperties']['BucketName']
-            path = event['ResourceProperties']['Path']
+            path = ''
+            if 'Path' in event['ResourceProperties']:
+                path = event['ResourceProperties']['Path']
+                if not path.endswith('/'):
+                    path = path  + '/'
             # copy data
             if is_processed:
                 cursor = connection.cursor()
                 for table in table_names:
-                    table_data = s3_service.get_object(Bucket=bucket_name, Key=path + '/' + table + '.csv')
+                    table_data = s3_service.get_object(Bucket=bucket_name, Key=path + table + '.csv')
                     text_object_data = table_data['Body'].read().decode('utf-8','ignore')
                     csv_data = csv.reader(text_object_data.split("\n"), delimiter=',')
                     logger.info('started processing table :'+str(table))
