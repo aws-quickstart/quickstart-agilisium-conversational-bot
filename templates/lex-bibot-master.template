@@ -58,7 +58,66 @@
                         "CustomDataKeyPrefix"
                     ]
                 }
-            ]
+            ],
+            "ParameterLabels": {
+                "QSS3BucketName": {
+                    "default": "Quick Start S3 Bucket"
+                },
+                "QSS3KeyPrefix": {
+                    "default": "Quick Start S3 Key Prefix"
+                },
+                "AvailabilityZones": {
+                    "default": "Availability Zones"
+                },
+                "VPCCIDR": {
+                    "default": "VPC CIDR"
+                },
+                "PrivateSubnet1CIDR": {
+                    "default": "Private Subnet1 CIDR"
+                },
+                "PrivateSubnet2CIDR": {
+                    "default": "Private Subnet2 CIDR"
+                },
+                "PublicSubnet1CIDR": {
+                    "default": "Public Subnet1 CIDR"
+                },
+                "PublicSubnet2CIDR": {
+                    "default": "Public Subnet2 CIDR"
+                },
+                "RedshiftUsername": {
+                    "default": "Redshift Username"
+                },
+                "RedshiftPassword": {
+                    "default": "Redshift Password"
+                },
+                "RedshiftDbName": {
+                    "default": "Redshift Database Name"
+                },
+                "RedshiftPort": {
+                    "default": "Redshift Port"
+                },
+                "RedshiftNodeType": {
+                    "default": "Redshift Node Type"
+                },
+                "RedshiftNumberOfNodes": {
+                    "default": "Redshift Number Of Nodes"
+                },
+                "LexResourcesPrefix": {
+                    "default": "Lex Resource Prefix"
+                },
+                "ParentOrigin": {
+                    "default": "Parent Origin"
+                },
+                "LoadCustomData": {
+                    "default": "Load Custom Data Flag"
+                },
+                "CustomDataBucketName": {
+                    "default": "Custom Data Bucket Name"
+                },
+                "CustomDataKeyPrefix": {
+                    "default": "Custom Data Key Prefix"
+                }
+            }
         }
     },
     "Parameters": {
@@ -140,7 +199,7 @@
             "AllowedValues": [
                 "dc2.large",
                 "dc2.8xlarge",
-                "ds2.large",
+                "ds2.xlarge",
                 "ds2.8xlarge"
             ],
             "ConstraintDescription": "must be a valid RedShift node type."
