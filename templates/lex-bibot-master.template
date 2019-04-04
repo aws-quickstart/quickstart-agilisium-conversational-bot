@@ -50,7 +50,7 @@
                 },
                 {
                     "Label": {
-                        "default": "Optional Configuration"
+                        "default": "Custom Data Configuration (Optional)"
                     },
                     "Parameters": [
                         "LoadCustomData",
@@ -61,61 +61,61 @@
             ],
             "ParameterLabels": {
                 "QSS3BucketName": {
-                    "default": "Quick Start S3 Bucket"
+                    "default": "Quick Start S3 bucket"
                 },
                 "QSS3KeyPrefix": {
-                    "default": "Quick Start S3 Key Prefix"
+                    "default": "Quick Start S3 key prefix"
                 },
                 "AvailabilityZones": {
                     "default": "Availability Zones"
                 },
                 "VPCCIDR": {
-                    "default": "VPC CIDR"
+                    "default": "CIDR range for VPC"
                 },
                 "PrivateSubnet1CIDR": {
-                    "default": "Private Subnet1 CIDR"
+                    "default": "Private subnet 1 CIDR range"
                 },
                 "PrivateSubnet2CIDR": {
-                    "default": "Private Subnet2 CIDR"
+                    "default": "Private subnet 2 CIDR range"
                 },
                 "PublicSubnet1CIDR": {
-                    "default": "Public Subnet1 CIDR"
+                    "default": "Public subnet 1 CIDR range"
                 },
                 "PublicSubnet2CIDR": {
-                    "default": "Public Subnet2 CIDR"
+                    "default": "Public Subnet2 CIDR range"
                 },
                 "RedshiftUsername": {
-                    "default": "Redshift Username"
+                    "default": "Redshift username"
                 },
                 "RedshiftPassword": {
-                    "default": "Redshift Password"
+                    "default": "Redshift password"
                 },
                 "RedshiftDbName": {
-                    "default": "Redshift Database Name"
+                    "default": "Redshift database name"
                 },
                 "RedshiftPort": {
-                    "default": "Redshift Port"
+                    "default": "Redshift port"
                 },
                 "RedshiftNodeType": {
-                    "default": "Redshift Node Type"
+                    "default": "Redshift node type"
                 },
                 "RedshiftNumberOfNodes": {
-                    "default": "Redshift Number Of Nodes"
+                    "default": "Redshift number of nodes"
                 },
                 "LexResourcesPrefix": {
-                    "default": "Lex Resource Prefix"
+                    "default": "Prefix for Lex resources"
                 },
                 "ParentOrigin": {
-                    "default": "Parent Origin"
+                    "default": "Parent origin"
                 },
                 "LoadCustomData": {
-                    "default": "Load Custom Data Flag"
+                    "default": "Load custom data flag"
                 },
                 "CustomDataBucketName": {
-                    "default": "Custom Data Bucket Name"
+                    "default": "Custom data bucket name"
                 },
                 "CustomDataKeyPrefix": {
-                    "default": "Custom Data Key Prefix"
+                    "default": "Custom data key prefix"
                 }
             }
         }
@@ -194,7 +194,7 @@
         },
         "RedshiftNodeType": {
             "Type": "String",
-            "Description": "The node type to for the redshift cluster",
+            "Description": "The node type for the redshift cluster",
             "Default": "dc2.large",
             "AllowedValues": [
                 "dc2.large",
@@ -202,7 +202,7 @@
                 "ds2.xlarge",
                 "ds2.8xlarge"
             ],
-            "ConstraintDescription": "must be a valid RedShift node type."
+            "ConstraintDescription": "must be a valid redshift node type."
         },
         "RedshiftNumberOfNodes": {
             "Type": "Number",
