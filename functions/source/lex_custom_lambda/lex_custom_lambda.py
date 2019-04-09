@@ -136,6 +136,11 @@ def copy_webui_code(event):
         formatted_copy_command = copy_command.format(source_path=source_path, destination_path=destination_path)
         logger.info(formatted_copy_command)
         driver.main(formatted_copy_command.split())
+
+        #Fix for index.html content-type
+        index_copy_command = 's3 cp s3://{source_path}/index.html s3://{destination_path} --acl public-read --metadata-directive REPLACE --content-type text/html'
+        formatted_index_copy_command = index_copy_command.format(source_path=source_path, destination_path=destination_path)
+        driver.main(formatted_index_copy_command.split())
         bot_name = event['ResourceProperties']['BotName']
         pool_id = event['ResourceProperties']['CognitoPoolId']
         static_host_bucket = event['ResourceProperties']['DestinationBucket']

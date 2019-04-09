@@ -66,11 +66,11 @@
                 "VPCID": {
                     "default": "VPC ID"
                 },
-                "PrivateSubnet1CIDR": {
-                    "default": "Private subnet 1 CIDR range"
+                "PrivateSubnetId1": {
+                    "default": "Private subnet 1"
                 },
-                "PrivateSubnet2CIDR": {
-                    "default": "Private subnet 2 CIDR range"
+                "PrivateSubnetId2": {
+                    "default": "Private subnet 2"
                 },
                 "RedshiftUsername": {
                     "default": "Redshift username"
