@@ -6,7 +6,7 @@
             "ParameterGroups": [
                 {
                     "Label": {
-                        "default": "Network Configuration"
+                        "default": "VPC network configuration"
                     },
                     "Parameters": [
                         "VPCID",
@@ -16,7 +16,7 @@
                 },
                 {
                     "Label": {
-                        "default": "Redshift Configuration"
+                        "default": "Redshift configuration"
                     },
                     "Parameters": [
                         "RedshiftUsername",
@@ -29,7 +29,7 @@
                 },
                 {
                     "Label": {
-                        "default": "Lex Bot Configuration"
+                        "default": "Lex bot configuration"
                     },
                     "Parameters": [
                         "LexResourcesPrefix",
@@ -38,21 +38,21 @@
                 },
                 {
                     "Label": {
-                        "default": "Quick Start Configuration"
-                    },
-                    "Parameters": [
-                        "QSS3BucketName",
-                        "QSS3KeyPrefix"
-                    ]
-                },
-                {
-                    "Label": {
-                        "default": "Custom Data Configuration (Optional)"
+                        "default": "(Optional) Custom data configuration"
                     },
                     "Parameters": [
                         "LoadCustomData",
                         "CustomDataBucketName",
                         "CustomDataKeyPrefix"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "AWS Quick Start configuration"
+                    },
+                    "Parameters": [
+                        "QSS3BucketName",
+                        "QSS3KeyPrefix"
                     ]
                 }
             ],
@@ -73,7 +73,7 @@
                     "default": "Private subnet 2"
                 },
                 "RedshiftUsername": {
-                    "default": "Redshift username"
+                    "default": "Redshift user name"
                 },
                 "RedshiftPassword": {
                     "default": "Redshift password"
@@ -112,14 +112,14 @@
         "QSS3BucketName": {
             "Type": "String",
             "Description": "S3 bucket name for the Quick Start assets. Quick Start bucket name can include numbers, lowercase letters, uppercase letters, periods (.), and hyphens (-). It cannot start or end with a hyphen (-) or period (.).",
-            "Default": "ag-bot-demo-ire",
+            "Default": "aws-quickstart",
             "AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
             "ConstraintDescription": "Quick Start bucket name can include numbers, lowercase letters, uppercase letters, periods (.), and hyphens (-). It cannot start or end with a hyphen (-) or period (.)"
         },
         "QSS3KeyPrefix": {
             "Type": "String",
             "Description": "The S3 key name prefix used to simulate a folder for your copy of Quick Start assets, if you decide to customize or extend the Quick Start for your own use. This prefix can include numbers, lowercase letters, uppercase letters, hyphens, and forward slashes",
-            "Default": "conversational-bot",
+            "Default": "quickstart-agilisium-conversational-bot/",
             "AllowedPattern": "^[0-9a-zA-Z-/]*$",
             "ConstraintDescription": "Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).  Prefix cannot start with a slash but must end with a slash unless it is the empty string."
         },
@@ -182,8 +182,9 @@
         },
         "ParentOrigin": {
             "Type": "String",
-            "Description": "Browser origin (e.g. http://lexbot.example.com:8080) of an existing site that is allowed to send/receive data and events from the web ui in an iframe setup. This is an optional parameter. If left empty, an S3 bucket will be created to host a sample parent site embedding the webapp as an iframe.\n",
-            "AllowedPattern": "(^$|^https?://[\\w\\.-]+(:\\d+)?$)",
+            "Description": "Browser origin (e.g. http://lexbot.example.com:8080) of an existing site that is allowed to send/receive data and events from the web ui in an iframe setup. This is an optional parameter. If left 'Optional', an S3 bucket will be created to host a sample parent site embedding the webapp as an iframe.\n",
+            "Default": "Optional",
+            "AllowedPattern": "(^Optional$|^https?://[\\w\\.-]+(:\\d+)?$)",
             "ConstraintDescription": "Empty or valid browser origin"
         },
         "LoadCustomData": {
@@ -198,14 +199,14 @@
         },
         "CustomDataBucketName": { 
             "Type": "String",
-            "Description": "S3 bucket name for the custom data assets to be loaded to redshift. Bucket name can include numbers, lowercase letters, uppercase letters, periods (.), and hyphens (-). It cannot start or end with a hyphen (-) or period (.).",
+            "Description": "This only applies if the LoadCustomData parameter is set to true. The bucket name for the custom dataset. Enter your bucket name where your custom data resides.",
             "Default": "",
             "AllowedPattern": "(^$|^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$)",
             "ConstraintDescription": "Bucket name can include numbers, lowercase letters, uppercase letters, periods (.), and hyphens (-). It cannot start or end with a hyphen (-) or period (.)"
         },
         "CustomDataKeyPrefix": {
             "Type": "String",
-            "Description": "The S3 key name prefix where custom data assets are stored to be loaded to redshift. This prefix can include numbers, lowercase letters, uppercase letters, hyphens, and forward slashes",
+            "Description": "This only applies if the LoadCustomData parameter is set to true. Enter your custom data where your custom data resides.",
             "Default": "",
             "AllowedPattern": "(^$|^[0-9a-zA-Z-/]*$)",
             "ConstraintDescription": "Key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).  Prefix cannot start with a slash but must end with a slash unless it is the empty string."
@@ -217,7 +218,7 @@
                 {
                     "Ref": "ParentOrigin"
                 },
-                ""
+                "Optional"
             ]
         },
         "UseCustomData": {
@@ -251,7 +252,7 @@
             "Type": "AWS::CloudFormation::Stack",
             "Properties": {
                 "TemplateURL": {
-                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}/templates/datasource-redshift.template"
+                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/datasource-redshift.template"
                 },
                 "Parameters": {
                     "VPCID": {
@@ -386,9 +387,9 @@
                     "Ref": "QSS3KeyPrefix"
                 },
                 "Objects": [
-                    "/functions/packages/bot_fulfillment/bot_fulfillment.zip",
-                    "/functions/packages/lex_custom_lambda/lex_custom_lambda.zip",
-                    "/functions/packages/bootstrap_redshift/bootstrap_redshift.zip"
+                    "functions/packages/bot_fulfillment/bot_fulfillment.zip",
+                    "functions/packages/lex_custom_lambda/lex_custom_lambda.zip",
+                    "functions/packages/bootstrap_redshift/bootstrap_redshift.zip"
                 ]
             }
         },
@@ -705,7 +706,7 @@
                         "Ref": "LambdaZipsBucket"
                     },
                     "S3Key": {
-                        "Fn::Sub": "${QSS3KeyPrefix}/functions/packages/bot_fulfillment/bot_fulfillment.zip"
+                        "Fn::Sub": "${QSS3KeyPrefix}functions/packages/bot_fulfillment/bot_fulfillment.zip"
                     }
                 },
                 "Runtime": "python3.6",
@@ -976,7 +977,7 @@
                         "Ref": "LambdaZipsBucket"
                     },
                     "S3Key": {
-                        "Fn::Sub": "${QSS3KeyPrefix}/functions/packages/lex_custom_lambda/lex_custom_lambda.zip"
+                        "Fn::Sub": "${QSS3KeyPrefix}functions/packages/lex_custom_lambda/lex_custom_lambda.zip"
                     }
                 },
                 "Runtime": "python3.6",
@@ -997,7 +998,7 @@
                     "Ref": "QSS3BucketName"
                 },
                 "LexJsonKey": {
-                    "Fn::Sub": "${QSS3KeyPrefix}/assets/lex/lex_aws_quickstart.json"
+                    "Fn::Sub": "${QSS3KeyPrefix}assets/lex/lex_aws_quickstart.json"
                 },
                 "LexResourcesPrefix": {
                     "Ref": "LexResourcesPrefix"
@@ -1012,7 +1013,7 @@
                     "Ref": "QSS3BucketName"
                 },
                 "SourceKey": {
-                    "Fn::Sub": "${QSS3KeyPrefix}/assets/web"
+                    "Fn::Sub": "${QSS3KeyPrefix}assets/web"
                 },
                 "DestinationBucket": {
                     "Ref": "S3WebBucket"
@@ -1044,7 +1045,7 @@
                         "Ref": "LambdaZipsBucket"
                     },
                     "S3Key": {
-                        "Fn::Sub": "${QSS3KeyPrefix}/functions/packages/bootstrap_redshift/bootstrap_redshift.zip"
+                        "Fn::Sub": "${QSS3KeyPrefix}functions/packages/bootstrap_redshift/bootstrap_redshift.zip"
                     }
                 },
                 "Runtime": "python3.6",
@@ -1113,7 +1114,7 @@
                     "Fn::If": [
                         "UseCustomData",
                         {"Ref": "CustomDataKeyPrefix"},
-                        {"Fn::Sub": "${QSS3KeyPrefix}/assets/data"}
+                        {"Fn::Sub": "${QSS3KeyPrefix}assets/data"}
                     ]
                 }
             }
