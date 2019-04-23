@@ -14,5 +14,13 @@
     {
         "ParameterKey":"RedshiftDbName",
         "ParameterValue":"$[taskcat_random-string]"
+    },
+    {
+        "ParameterKey":"QSS3BucketName",
+        "ParameterValue":"$[taskcat_autobucket]"
+    },
+    {
+        "ParameterKey":"RedshiftNodeType",
+        "ParameterValue":"ds2.xlarge"
     }
 ]
