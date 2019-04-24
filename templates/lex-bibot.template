@@ -6,7 +6,7 @@
             "ParameterGroups": [
                 {
                     "Label": {
-                        "default": "VPC network configuration"
+                        "default": "Network configuration"
                     },
                     "Parameters": [
                         "VPCID",
@@ -58,7 +58,7 @@
             ],
             "ParameterLabels": {
                 "QSS3BucketName": {
-                    "default": "Quick Start S3 bucket"
+                    "default": "Quick Start S3 bucket name"
                 },
                 "QSS3KeyPrefix": {
                     "default": "Quick Start S3 key prefix"
@@ -111,38 +111,38 @@
     "Parameters": {
         "QSS3BucketName": {
             "Type": "String",
-            "Description": "S3 bucket name for the Quick Start assets. Quick Start bucket name can include numbers, lowercase letters, uppercase letters, periods (.), and hyphens (-). It cannot start or end with a hyphen (-) or period (.).",
+            "Description": "The S3 bucket you have created for your copy of Quick Start assets, if you decide to customize or extend the Quick Start for your own use. The bucket name can include numbers, lowercase letters, uppercase letters, and hyphens, but should not start or end with a hyphen.",
             "Default": "aws-quickstart",
             "AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
             "ConstraintDescription": "Quick Start bucket name can include numbers, lowercase letters, uppercase letters, periods (.), and hyphens (-). It cannot start or end with a hyphen (-) or period (.)"
         },
         "QSS3KeyPrefix": {
             "Type": "String",
-            "Description": "The S3 key name prefix used to simulate a folder for your copy of Quick Start assets, if you decide to customize or extend the Quick Start for your own use. This prefix can include numbers, lowercase letters, uppercase letters, hyphens, and forward slashes",
+            "Description": "The S3 key name prefix used to simulate a folder for your copy of Quick Start assets, if you decide to customize or extend the Quick Start for your own use. This prefix can include numbers, lowercase letters, uppercase letters, hyphens, and forward slashes.",
             "Default": "quickstart-agilisium-conversational-bot/",
             "AllowedPattern": "^[0-9a-zA-Z-/]*$",
             "ConstraintDescription": "Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).  Prefix cannot start with a slash but must end with a slash unless it is the empty string."
         },
         "VPCID": {
             "Type": "AWS::EC2::VPC::Id",
-            "Description": "ID of an existing VPC where the AWS resources will be deployed through the Cloudformation templates"
+            "Description": "The ID of your existing VPC (e.g., vpc-0343606e) where the AWS resources will be deployed through the CloudFormation templates."
         },
         "PrivateSubnetId1": {
             "Type": "AWS::EC2::Subnet::Id",
-            "Description": "ID of Private Subnet 1 in the existing VPC"
+            "Description": "The ID of the private subnet in Availability Zone 1 in your existing VPC (e.g., subnet-a0246dcd)."
         },
         "PrivateSubnetId2": {
             "Type": "AWS::EC2::Subnet::Id",
-            "Description": "ID of Private Subnet 2 in the existing VPC"
+            "Description": "The ID of the private subnet in Availability Zone 2 in your existing VPC (e.g., subnet-b58c3d67)."
         },
         "RedshiftUsername": {
             "Type": "String",
-            "Description": "RedShift Username",
+            "Description": "The Redshift user name for connecting to the cluster.",
             "Default": "tadmin"
         },
         "RedshiftPassword": {
             "Type": "String",
-            "Description": "RedShift Password Can only contain alphanumeric characters or the following special characters !^*-_+",
+            "Description": "The Redshift password for connecting to the cluster.",
             "NoEcho": true,
             "MinLength": 8,
             "MaxLength": 28,
@@ -150,16 +150,16 @@
         },
         "RedshiftDbName": {
             "Type": "String",
-            "Description": "RedShift Database name"
+            "Description": "The name of the Redshift database."
         },
         "RedshiftPort": {
             "Type": "String",
-            "Description": "RedShift Port",
+            "Description": "The Redshift port.",
             "Default": "5439"
         },
         "RedshiftNodeType": {
             "Type": "String",
-            "Description": "The node type for the redshift cluster",
+            "Description": "The cluster node type for Redshift.",
             "Default": "dc2.large",
             "AllowedValues": [
                 "dc2.large",
@@ -171,25 +171,25 @@
         },
         "RedshiftNumberOfNodes": {
             "Type": "Number",
-            "Description": "The number of nodes in the redshift cluster",
+            "Description": "The number of nodes for the Redshift cluster.",
             "Default": "1"
         },
         "LexResourcesPrefix": {
             "Type": "String",
-            "Description": "Prefix for Lex Bot, Intent and Slots",
+            "Description": "The prefix that will be added to the Lex bot, intents, and slots. This takes care of limiting Lambda permissions to intents with specific prefix.",
             "Default": "lex_cft_prefix",
             "AllowedPattern": "(^[a-zA-Z]$|^[a-zA-Z][a-zA-Z_]+$)"
         },
         "ParentOrigin": {
             "Type": "String",
-            "Description": "Browser origin (e.g. http://lexbot.example.com:8080) of an existing site that is allowed to send/receive data and events from the web ui in an iframe setup. This is an optional parameter. If left 'Optional', an S3 bucket will be created to host a sample parent site embedding the webapp as an iframe.\n",
+            "Description": "The browser origin (for example, http://lexbot.example.com:8080) of an existing site that is allowed to send/receive data and events from the web UI in an iframe setup. This is an optional parameter. If left empty, an S3 bucket will be created to host a sample parent site embedding the webapp as an iframe.",
             "Default": "Optional",
             "AllowedPattern": "(^Optional$|^https?://[\\w\\.-]+(:\\d+)?$)",
             "ConstraintDescription": "Empty or valid browser origin"
         },
         "LoadCustomData": {
             "Type": "String",
-            "Description": "Choose true to load custom data from user S3 location instead of default sample data",
+            "Description": "Choose true if you want to load your own custom data from an S3 location, instead of using the default sample data.",
             "Default": "false",
             "AllowedValues": [
                 "true",
