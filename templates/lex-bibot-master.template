@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "This template uses the Lex Bot templates with VPC quickstart. The AWS VPC creates a multi-AZ,  multi-subnet VPC infrastructure with managed NAT gateways in the public subnet for each  Availability Zone. The Lex Fulfilment Lambda will be running in VPC private subnets to connect  to redshift cluster. **WARNING** This template creates AWS resources. You will be billed for  the AWS resources used if you create a stack from this template. (qs-1nrlpbhnf)",
+    "Description": "This template uses the Lex Bot templates with VPC quickstart. The AWS VPC creates a multi-AZ,  multi-subnet VPC infrastructure with managed NAT gateways in the public subnet for each  Availability Zone. The Lex Fulfilment Lambda will be running in VPC private subnets to connect  to redshift cluster. **WARNING** This template creates AWS resources. You will be billed for  the AWS resources used if you create a stack from this template. (qs-1ph9hgdoa)",
     "Metadata": {
         "AWS::CloudFormation::Interface": {
             "ParameterGroups": [

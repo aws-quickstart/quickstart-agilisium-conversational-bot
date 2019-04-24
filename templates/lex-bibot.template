@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "This template deploys Lex Bots, Lambda for Lex Fulfilment, DataSource (Redshift) The Redshift servers are all deployed to the private subnet. Private subnets must  be available in at least two availability zones. Lambda will running the VPC private subnets to connect to redshift. **WARNING** This template creates AWS  resources. You will be billed for the AWS resources used if you create a stack  from this template. (qs-1nrlpbhna)",
+    "Description": "This template deploys Lex Bots, Lambda for Lex Fulfilment, DataSource (Redshift) The Redshift servers are all deployed to the private subnet. Private subnets must  be available in at least two availability zones. Lambda will running the VPC private subnets to connect to redshift. **WARNING** This template creates AWS  resources. You will be billed for the AWS resources used if you create a stack  from this template. (qs-1ph9hgdrj)",
     "Metadata": {
         "AWS::CloudFormation::Interface": {
             "ParameterGroups": [
