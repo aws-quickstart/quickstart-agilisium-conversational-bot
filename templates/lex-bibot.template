@@ -400,9 +400,6 @@
                 "WebsiteConfiguration": {
                     "IndexDocument": "index.html"
                 },
-                "VersioningConfiguration": {
-                    "Status": "Enabled"
-                },
                 "CorsConfiguration": {
                     "Fn::If": [
                         "NeedsParentOrigin",
