@@ -5,9 +5,7 @@ This Quick Start automatically deploys the Agilisium Conversational BI Bot on th
 
 You can open a chat window on the bot website, converse with the bot, and enter questions about your data. The bot responds through a mix of visuals and text. This Quick Start uses an example scenario of an automotive dealership, where a business stakeholder—such as an executive—converses with the bot to derive sales and revenue insights of the dealership, based on a predefined set of questions.
 
-The Quick Start includes a sample dataset. You can use this Quick Start and dataset as a foundation to build BI bots of your own. You can also load your own data, instead of using the dataset provided.
-
-![Quick Start architecture for Agilisium Conversational BI Bot on AWS](https://d1.awsstatic.com/partner-network/QuickStart/datasheets/conversational-bi-bot-on-aws-architecture.12d0103c09b414ea9e3a54134c9e7ac83fec443e.png)
+![Quick Start architecture for Agilisium Conversational BI Bot on AWS](https://d1.awsstatic.com/partner-network/QuickStart/datasheets/conversational-bi-bot-on-aws-arch-diagram.ae9732ade27dac1dc0c000b292491dcc39438912.png)
 
 For architectural details, best practices, step-by-step instructions, and customization options, see the [deployment guide](https://fwd.aws/m7bKN).
 
