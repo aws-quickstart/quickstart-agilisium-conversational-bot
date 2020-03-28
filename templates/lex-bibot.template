@@ -39,10 +39,13 @@ Metadata:
           default: AWS Quick Start configuration
         Parameters:
           - QSS3BucketName
+          - QSS3BucketRegion
           - QSS3KeyPrefix
     ParameterLabels:
       QSS3BucketName:
         default: Quick Start S3 bucket name
+      QSS3BucketRegion:
+        default: Quick Start S3 bucket region
       QSS3KeyPrefix:
         default: Quick Start S3 key prefix
       VPCID:
@@ -86,6 +89,10 @@ Parameters:
     ConstraintDescription: Quick Start bucket name can include numbers, lowercase
       letters, uppercase letters, periods (.), and hyphens (-). It cannot start or
       end with a hyphen (-) or period (.)
+  QSS3BucketRegion:
+    Default: 'us-east-1'
+    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
+    Type: String
   QSS3KeyPrefix:
     Type: String
     Description: >-
@@ -194,6 +201,7 @@ Conditions:
   UseCustomData: !Equals
     - !Ref 'LoadCustomData'
     - 'true'
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 Rules:
   LexRegionCheck:
     Assertions:
@@ -218,7 +226,11 @@ Resources:
   RedshiftStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/datasource-redshift.template'
+      TemplateURL:
+        !Sub
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/datasource-redshift.template'
+          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         VPCID: !Ref 'VPCID'
         RedshiftSubnetA: !Ref 'PrivateSubnetId1'
@@ -303,7 +315,7 @@ Resources:
     Properties:
       ServiceToken: !GetAtt 'CopyZipsFunction.Arn'
       DestBucket: !Ref 'LambdaZipsBucket'
-      SourceBucket: !Ref 'QSS3BucketName'
+      SourceBucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Prefix: !Ref 'QSS3KeyPrefix'
       Objects:
         - functions/packages/bot_fulfillment/bot_fulfillment.zip
@@ -608,11 +620,11 @@ Resources:
     DependsOn: CustomLambda
     Properties:
       ServiceToken: !GetAtt 'CustomLambda.Arn'
-      BucketName: !Ref 'QSS3BucketName'
+      BucketName: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       LexJsonKey: !Sub '${QSS3KeyPrefix}assets/lex/lex_aws_quickstart.json'
       LexResourcesPrefix: !Ref 'LexResourcesPrefix'
       FulfillmentLambdaArn: !GetAtt 'LexFulfillmentLambda.Arn'
-      SourceBucket: !Ref 'QSS3BucketName'
+      SourceBucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       SourceKey: !Sub '${QSS3KeyPrefix}assets/web'
       DestinationBucket: !Ref 'S3WebBucket'
       DestinationKey: ''
@@ -654,7 +666,7 @@ Resources:
       BucketName: !If
         - UseCustomData
         - !Ref 'CustomDataBucketName'
-        - !Ref 'QSS3BucketName'
+        - !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Path: !If
         - UseCustomData
         - !Ref 'CustomDataKeyPrefix'
