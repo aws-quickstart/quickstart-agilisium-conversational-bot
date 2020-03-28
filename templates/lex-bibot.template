@@ -416,7 +416,7 @@ Resources:
     Type: AWS::IAM::Policy
     DependsOn: UnAuthRole
     Properties:
-      PolicyName: !Sub 'cognito_auth_policy_${AWS::Region}_${AWS::StackName}'
+      PolicyName: !Sub 'cog_pol_${AWS::Region}_${AWS::StackName}'
       Roles:
         - !Ref 'UnAuthRole'
       PolicyDocument:
