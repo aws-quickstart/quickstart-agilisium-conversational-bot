@@ -456,7 +456,7 @@ Resources:
     Type: AWS::IAM::Policy
     DependsOn: LexFulfillmentLambdaRole
     Properties:
-      PolicyName: !Sub 'lex_fulfillment_policy_lambda_${AWS::Region}_${AWS::StackName}'
+      PolicyName: !Sub 'lex_lambda_${AWS::Region}_${AWS::StackName}'
       Roles:
         - !Ref 'LexFulfillmentLambdaRole'
       PolicyDocument:
