@@ -278,7 +278,7 @@ Resources:
             S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         QSS3BucketName: !Ref 'QSS3BucketName'
-        QSS3BucketRegion: !Ref 'QSS3BUcketRegion'
+        QSS3BucketRegion: !Ref 'QSS3BucketRegion'
         QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
         VPCID: !GetAtt 'VPCStack.Outputs.VPCID'
         PrivateSubnetId1: !GetAtt 'VPCStack.Outputs.PrivateSubnet1AID'
