@@ -1,0 +1,19 @@
+project:
+  name: quickstart-agilisium
+  owner: quickstart-eng@amazon.com
+  package_lambda: false
+  regions:
+    - eu-west-1
+    - us-west-2
+    - us-east-1
+tests:
+  agilisium:
+    parameters:
+      AvailabilityZones: $[taskcat_genaz_2]
+      RedshiftUsername: $[taskcat_random-string]
+      RedshiftPassword: $[taskcat_genpass_8A]
+      RedshiftDbName: $[taskcat_random-string]
+      RedshiftNodeType: ds2.xlarge
+      QSS3BucketName: $[taskcat_autobucket]
+      QSS3BucketRegion: $[taskcat_current_region]
+    template: ./templates/lex-bibot-master.template
